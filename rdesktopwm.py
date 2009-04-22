@@ -111,3 +111,5 @@ class MainWindow:
 if __name__ == '__main__':
 	m = MainWindow()
 	gtk.main()
+
+# vim: set noet ts=4:
