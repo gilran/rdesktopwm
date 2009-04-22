@@ -50,7 +50,7 @@ class MainWindow:
 		
 
 	def createNewPage(self, treeView, path):
-		inner_widget = gtk.TextView()
+		inner_widget = gtk.Socket()
 		self.displays.append_page(inner_widget, gtk.Label(self.machines[path[0]][0]))
 		self.displays.show_all()
 		self.displays.next_page()
@@ -68,7 +68,7 @@ class MainWindow:
 		else:
 			os.close(1)
 			os.close(2)
-			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "1280x1024", "-d", self.domain, machine])
+			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.get_id()), "-g", "1280x1024", "-d", self.domain, machine])
 
 	def connectToMachine(self, treeView, path, view_column):
 		gobject.idle_add(self.runRdesktop, self.createNewPage(treeView, path), self.machines[path[0]][0])
@@ -101,6 +101,7 @@ class MainWindow:
 		self.xml.get_widget("listMachines").append_column(second_column)
 
 		self.xml.get_widget("listMachines").set_model(self.list_store)
+		self.xml.get_widget("listMachines").set_enable_search(False)
 
 		self.readConf()
 	
