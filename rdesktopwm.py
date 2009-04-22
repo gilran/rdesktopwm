@@ -52,8 +52,11 @@ class MainWindow:
 		
 
 	def createNewPage(self, treeView, path):
+		sw = gtk.ScrolledWindow()
 		inner_widget = gtk.TextView()
-		self.displays.append_page(inner_widget, gtk.Label(self.machines[path[0]][0]))
+		inner_widget.set_size_request(*self.resolution)
+		sw.add_with_viewport(inner_widget)
+		self.displays.append_page(sw, gtk.Label(self.machines[path[0]][0]))
 		self.displays.show_all()
 		self.displays.next_page()
 		return inner_widget
