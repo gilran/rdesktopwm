@@ -35,6 +35,8 @@ class MainWindow:
 		self.xml.get_widget("winMain").connect("destroy", gtk.main_quit)
 		self.xml.get_widget("btnRemove").connect("clicked", self.removeMachine)
 
+		self.domain = "domain"
+
 	def addMachine(self, name, description):
 		self.machines.append((name, description))
 		self.list_store.append([name, description])
@@ -64,7 +66,9 @@ class MainWindow:
 		if (child_pid != 0):
 			self.child_widgets[child_pid] = inner_widget
 		else:
-			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "1280x1024", machine])
+			os.close(1)
+			os.close(2)
+			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "1280x1024", "-d", self.domain, machine])
 
 	def connectToMachine(self, treeView, path, view_column):
 		gobject.idle_add(self.runRdesktop, self.createNewPage(treeView, path), self.machines[path[0]][0])
