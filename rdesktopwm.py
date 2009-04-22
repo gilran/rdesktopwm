@@ -45,7 +45,9 @@ class MainWindow:
 	
 	def dropNotebookPage(self, inner_widget):
 		for i in range(self.displays.get_n_pages()):
-			if self.displays.get_nth_page(i) == inner_widget:
+			# Look for the widget's parent's parent - the parent is a viewport,
+			# the grandparent is the ScrolledWindow
+			if self.displays.get_nth_page(i) == inner_widget.parent.parent:
 				self.displays.remove_page(i)
 				return
 		raise exceptions.Exception("Could find page with widget %s" % inner_widget)
