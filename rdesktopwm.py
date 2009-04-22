@@ -45,9 +45,7 @@ class MainWindow:
 	
 	def dropNotebookPage(self, inner_widget):
 		for i in range(self.displays.get_n_pages()):
-			# Look for the widget's parent's parent - the parent is a viewport,
-			# the grandparent is the ScrolledWindow
-			if self.displays.get_nth_page(i) == inner_widget.parent.parent:
+			if self.displays.get_nth_page(i) == inner_widget:
 				self.displays.remove_page(i)
 				return
 		raise exceptions.Exception("Could find page with widget %s" % inner_widget)
@@ -55,8 +53,7 @@ class MainWindow:
 
 	def createNewPage(self, treeView, path):
 		sw = gtk.ScrolledWindow()
-		inner_widget = gtk.TextView()
-		inner_widget.set_size_request(*self.resolution)
+		inner_widget = gtk.Socket()
 		sw.add_with_viewport(inner_widget)
 		self.displays.append_page(sw, gtk.Label(self.machines[path[0]][0]))
 		self.displays.show_all()
@@ -71,11 +68,14 @@ class MainWindow:
 		child_pid = os.fork()
 
 		if (child_pid != 0):
-			self.child_widgets[child_pid] = inner_widget
+			# When looking for the contained child, look for this widget's
+			# parent's parent - the parent is a viewport, the grandparent is
+			# the ScrolledWindow in the notebook.
+			self.child_widgets[child_pid] = inner_widget.parent.parent
 		else:
 			os.close(1)
 			os.close(2)
-			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "%dx%d" % self.resolution, "-d", self.domain, machine])
+			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.get_id()), "-g", "%dx%d" % self.resolution, "-d", self.domain, machine])
 
 	def connectToMachine(self, treeView, path, view_column):
 		gobject.idle_add(self.runRdesktop, self.createNewPage(treeView, path), self.machines[path[0]][0])
@@ -108,6 +108,7 @@ class MainWindow:
 		self.xml.get_widget("listMachines").append_column(second_column)
 
 		self.xml.get_widget("listMachines").set_model(self.list_store)
+		self.xml.get_widget("listMachines").set_enable_search(False)
 
 		self.readConf()
 	
