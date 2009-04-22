@@ -10,6 +10,8 @@ import signal
 import exceptions
 
 class MainWindow:
+	resolution = (1280, 1024)
+
 	def __init__(self):
 		"""
 		Doc-string
@@ -68,7 +70,7 @@ class MainWindow:
 		else:
 			os.close(1)
 			os.close(2)
-			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "1280x1024", "-d", self.domain, machine])
+			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "%dx%d" % self.resolution, "-d", self.domain, machine])
 
 	def connectToMachine(self, treeView, path, view_column):
 		gobject.idle_add(self.runRdesktop, self.createNewPage(treeView, path), self.machines[path[0]][0])
