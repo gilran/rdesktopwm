@@ -1,7 +1,11 @@
 import gtk
 import gtk.glade
+import os
 import os.path
 import sys
+import gobject
+import signal
+import exceptions
 
 class MainWindow:
 	def __init__(self):
@@ -13,11 +17,16 @@ class MainWindow:
 		self.list_machines = self.xml.get_widget("listMachines")				
 
 		self.list_store = gtk.ListStore(str, str)
+		self.displays = self.xml.get_widget("ntbkDisplays")
 
 		self.xml.get_widget("winMain").show_all()
+		self.xml.get_widget("textview1").set_name("tab1")
 
 		self.machines = []
-		
+		self.child_widgets = {}
+
+		signal.signal(signal.SIGCHLD, self.reap_child)
+
 		self.buildList()
 		
 		self.list_machines.connect("row-activated", self.connectToMachine)
@@ -27,9 +36,36 @@ class MainWindow:
 	def addMachine(self, name, description):
 		self.machines.append((name, description))
 		self.list_store.append([name, description])
+	
+	def dropNotebookPage(self, inner_widget):
+		for i in range(self.displays.get_n_pages()):
+			if self.displays.get_nth_page(i) == inner_widget:
+				self.displays.remove_page(i)
+				return
+		raise exceptions.Exception("Could find page with widget %s" % inner_widget)
+		
+
+	def createNewPage(self, treeView, path):
+		inner_widget = gtk.TextView()
+		self.displays.append_page(inner_widget, gtk.Label(self.machines[path[0]][0]))
+		self.displays.show_all()
+		self.displays.next_page()
+		return inner_widget
+	
+	def reap_child(self, signum, frame):
+		dead_pid, dead_status = os.wait()
+		gobject.idle_add(self.dropNotebookPage, self.child_widgets[dead_pid])
+		
+	def runRdesktop(self, inner_widget, machine):
+		child_pid = os.fork()
+
+		if (child_pid != 0):
+			self.child_widgets[child_pid] = inner_widget
+		else:
+			os.execvp("rdesktop", ["rdesktop", "-X", str(inner_widget.window.xid), "-g", "1280x1024", machine])
 
 	def connectToMachine(self, treeView, path, view_column):
-		os.system("rdesktop -g 1280x1024 %s" % self.machines[path[0]][0])
+		gobject.idle_add(self.runRdesktop, self.createNewPage(treeView, path), self.machines[path[0]][0])
 
 	def buildList(self):
 		first_column = gtk.TreeViewColumn("Name")
