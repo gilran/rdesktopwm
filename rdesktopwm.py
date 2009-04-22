@@ -73,6 +73,17 @@ class MainWindow:
 	def connectToMachine(self, treeView, path, view_column):
 		gobject.idle_add(self.runRdesktop, self.createNewPage(treeView, path), self.machines[path[0]][0])
 
+	def confFile(self):
+		return os.path.expanduser("~/.rdesktopwmrc")
+
+	def readConf(self):
+		if not os.path.exists(self.confFile()):
+			f = open(self.confFile(), "w")
+			f.close()
+
+		for line in open(self.confFile()):
+			self.addMachine(line.split(" ")[0], " ".join(line.split(" ")[1:]).rstrip())
+
 	def buildList(self):
 		first_column = gtk.TreeViewColumn("Name")
 		second_column = gtk.TreeViewColumn("Description")
@@ -91,8 +102,7 @@ class MainWindow:
 
 		self.xml.get_widget("listMachines").set_model(self.list_store)
 
-		for line in open(os.path.join(os.path.dirname(sys.argv[0]), "machines.conf")):
-			self.addMachine(line.split(" ")[0], " ".join(line.split(" ")[1:]).rstrip())
+		self.readConf()
 	
 	def removeMachine(self, btn):
 		if self.list_machines.get_cursor()[0]:
