@@ -57,7 +57,7 @@ class MainWindow:
 		sw.add_with_viewport(inner_widget)
 		self.displays.append_page(sw, gtk.Label(self.machines[path[0]][0]))
 		self.displays.show_all()
-		self.displays.next_page()
+		self.displays.set_current_page(self.displays.get_n_pages() - 1)
 		return inner_widget
 	
 	def reap_child(self, signum, frame):
