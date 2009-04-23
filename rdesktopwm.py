@@ -39,23 +39,23 @@ class MainWindow:
 
 		self.domain = "domain"
 
-		widgets_to_go_over = [self.xml.get_widget("winMain")]
-		all_widgets = []
-
-		while len(widgets_to_go_over) != 0 :
-			curr_widget = widgets_to_go_over[0]
-			print "curr_widget is %s" % str(curr_widget)
-			widgets_to_go_over.remove(curr_widget)
-			all_widgets.append(curr_widget)
-			if "get_children" in dir(curr_widget):
-				for w in curr_widget.get_children():
-					widgets_to_go_over.append(w)
-
-		for w in all_widgets:
-			w.connect("key-press-event", self.keyPressInfo)
-
-	def keyPressInfo(self, widget, event):
-		print "Key grabbed by: %s" % str(widget)
+#		widgets_to_go_over = [self.xml.get_widget("winMain")]
+#		all_widgets = []
+#
+#		while len(widgets_to_go_over) != 0 :
+#			curr_widget = widgets_to_go_over[0]
+#			print "curr_widget is %s" % str(curr_widget)
+#			widgets_to_go_over.remove(curr_widget)
+#			all_widgets.append(curr_widget)
+#			if "get_children" in dir(curr_widget):
+#				for w in curr_widget.get_children():
+#					widgets_to_go_over.append(w)
+#
+#		for w in all_widgets:
+#			w.connect("key-press-event", self.keyPressInfo)
+#
+#	def keyPressInfo(self, widget, event):
+#		print "Key grabbed by: %s" % str(widget)
 
 	def addMachine(self, name, description):
 		self.machines.append((name, description))
